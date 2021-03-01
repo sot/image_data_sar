@@ -17,6 +17,17 @@ FILEDIR = Path(__file__).parent
 SPARKLES_DIR = Path(sparkles.core.__file__).parent
 
 
+def get_options():
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="Image data SAR tool")
+    parser.add_argument('load_name',
+                        type=str,
+                        help="Pickle")
+    args = parser.parse_args()
+    return args
+
+
 def _run_aca_review(load_name=None, *, acars=None, make_html=True, report_dir=None,
                     report_level='none', roll_level='none', roll_args=None,
                     loud=False, obsids=None, open_html=False, context=None):
@@ -177,15 +188,8 @@ def sub_in_stars(aca):
     return naca, star1, star2
 
 
-def main(sys_args=None):
-    import argparse
-    parser = argparse.ArgumentParser(
-        description="Image data SAR tool")
-    parser.add_argument('load_name',
-                        type=str,
-                        help="Pickle")
-    args = parser.parse_args(sys_args)
-    acas = pickle.load(gzip.open(args.load_name))
+def do(load_name):
+    acas = pickle.load(gzip.open(load_name))
     aca_arr = [acas[cat] for cat in acas]
     aca_arr = sorted(aca_arr, key=lambda k: k.meta['date'])
 
@@ -243,5 +247,14 @@ def main(sys_args=None):
             {'text': f"Dwell stop {DateTime(cand['dwell_end']).date}",
              'category': 'info'})
 
-    _run_aca_review(load_name=args.load_name, acars=acars, loud=True,
+    _run_aca_review(load_name=load_name, acars=acars, loud=True,
                     make_html=True, report_level='all')
+
+
+def main():
+    opt = get_options()
+    do(opt.load_name)
+
+
+if __name__ == '__main__':
+    main()
