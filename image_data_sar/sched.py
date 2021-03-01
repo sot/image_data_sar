@@ -178,7 +178,7 @@ def sub_in_stars(aca):
     for i, n in enumerate(range(len(aca.guides.cand_guides) - 1, len(aca.guides) - 1, -1)):
         star1 = aca.guides.cand_guides['id'][n]
         star2 = aca.guides.cand_guides['id'][n - 1]
-        print(f"trying {star1} {star2}")
+        print(f"trying candidates {star1} {star2}")
         args['include_ids_guide'] = [star1, star2]
         naca = proseco.get_aca_catalog(**args)
         nacar = naca.get_review_table()
@@ -202,6 +202,7 @@ def do(load_name):
         man_start = DateTime(next_aca.meta['date']).secs - man_dur
         obs_dur = man_start - DateTime(aca.meta['date']).secs
         if (obsid > 40000) and (obsid < 59000) and (obs_dur >= MIN_DWELL):
+            print(f"Found candidate {obsid} of dur {obs_dur} at {aca.meta['date']}")
             candidates.append(
                 {'obsid': obsid,
                  'dwell_end': man_start})
@@ -247,8 +248,11 @@ def do(load_name):
             {'text': f"Dwell stop {DateTime(cand['dwell_end']).date}",
              'category': 'info'})
 
-    _run_aca_review(load_name=load_name, acars=acars, loud=True,
-                    make_html=True, report_level='all')
+    if len(acars) > 0:
+        _run_aca_review(load_name=load_name, acars=acars, loud=True,
+                        make_html=True, report_level='all')
+    else:
+        print("No opportunities found")
 
 
 def main():
