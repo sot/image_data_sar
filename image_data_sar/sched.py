@@ -129,8 +129,6 @@ def _run_aca_review(load_name=None, *, acars=None, make_html=True, report_dir=No
 
     # noinspection PyDictCreation
     if make_html:
-        # from . import __version__
-        __version__ = "0.1"
 
         # Create new context or else use a copy of the supplied dict
         if context is None:
@@ -140,7 +138,7 @@ def _run_aca_review(load_name=None, *, acars=None, make_html=True, report_dir=No
 
         context['load_name'] = load_name.upper()
         context['proseco_version'] = proseco.__version__
-        context['sparkles_version'] = __version__
+        context['sparkles_version'] = sparkles.__version__
         context['chandra_aca_version'] = chandra_aca.__version__
         context['acas'] = acars
         context['summary_text'] = get_summary_text(acars)
