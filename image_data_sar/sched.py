@@ -9,10 +9,11 @@ import sparkles
 import chandra_aca
 from sparkles.core import ACAReviewTable, get_summary_text, get_acas_from_pickle
 import proseco
-from Chandra.Time import DateTime
+import astropy.units as u
+from cxotime import CxoTime
 from Chandra.Maneuver import duration
 
-MIN_DWELL = 13000
+MIN_DWELL = 13000 * u.s
 FILEDIR = Path(__file__).parent
 SPARKLES_DIR = Path(sparkles.core.__file__).parent
 
@@ -195,10 +196,10 @@ def do(load_name):
     for aca, next_aca in zip(aca_arr[:-1], aca_arr[1:]):
         obsid = aca.obsid
         man_dur = duration(aca.att, next_aca.att)
-        man_start = DateTime(next_aca.date).secs - man_dur
-        obs_dur = man_start - DateTime(aca.date).secs
+        man_start = CxoTime(next_aca.date) - man_dur * u.s
+        obs_dur = man_start - CxoTime(aca.date)
         if (obsid > 40000) and (obsid < 59000) and (obs_dur >= MIN_DWELL):
-            print(f"Found candidate {obsid} of dur {obs_dur} at {aca.date}")
+            print(f"Found candidate {obsid} of dur {obs_dur.to(u.ks):.1f} at {aca.date}")
             candidates.append(
                 {'obsid': obsid,
                  'dwell_end': man_start})
@@ -222,13 +223,16 @@ def do(load_name):
         sar_args = [cargs.copy(), cargs.copy(), cargs.copy()]
         sar_args[0]['obsid'] = obsid
 
-        sar_args[1]['date'] = DateTime(DateTime(sar_args[0]['date']).secs + 4250).date
+        sar_start = CxoTime(sar_args[0]['date'])
+        four_ks = 4.25 * u.ks
+
+        sar_args[1]['date'] = (sar_start + four_ks).date
         sar_args[1]['obsid'] = obsid + 0.1
         sar_args[1]['dither_acq'] = (8, 8)
         sar_args[1]['dither_guide'] = (8, 8)
         sar_args[1]['img_size_guide'] = 6
 
-        sar_args[2]['date'] = DateTime(DateTime(sar_args[0]['date']).secs + 8500).date
+        sar_args[2]['date'] = (sar_start + 2 * four_ks).date
         sar_args[2]['obsid'] = obsid + 0.2
         sar_args[2]['dither_acq'] = (8, 8)
         sar_args[2]['dither_guide'] = (8, 8)
@@ -241,7 +245,7 @@ def do(load_name):
                  'category': 'info'})
             acars.append(acar)
         acars[-1].messages.append(
-            {'text': f"Dwell stop {DateTime(cand['dwell_end']).date}",
+            {'text': f"Dwell stop {CxoTime(cand['dwell_end']).date}",
              'category': 'info'})
 
     if len(acars) > 0:
