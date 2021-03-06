@@ -193,9 +193,8 @@ def do(load_name):
 
     # Do we want to parse the ms to check the last one?  Otherwise no duration.
     candidates = []
-    for idx, aca in enumerate(aca_arr[0:-1]):
+    for aca, next_aca in zip(aca_arr[:-1], aca_arr[1:]):
         obsid = aca.meta['obsid']
-        next_aca = aca_arr[idx + 1]
         man_dur = duration(aca.meta['att'], next_aca.meta['att'])
         man_start = DateTime(next_aca.meta['date']).secs - man_dur
         obs_dur = man_start - DateTime(aca.meta['date']).secs
