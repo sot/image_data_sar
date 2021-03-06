@@ -189,17 +189,17 @@ def sub_in_stars(aca):
 def do(load_name):
     acas = pickle.load(gzip.open(load_name))
     aca_arr = [acas[cat] for cat in acas]
-    aca_arr = sorted(aca_arr, key=lambda k: k.meta['date'])
+    aca_arr = sorted(aca_arr, key=lambda k: k.date)
 
     # Do we want to parse the ms to check the last one?  Otherwise no duration.
     candidates = []
     for aca, next_aca in zip(aca_arr[:-1], aca_arr[1:]):
-        obsid = aca.meta['obsid']
-        man_dur = duration(aca.meta['att'], next_aca.meta['att'])
-        man_start = DateTime(next_aca.meta['date']).secs - man_dur
-        obs_dur = man_start - DateTime(aca.meta['date']).secs
+        obsid = aca.obsid
+        man_dur = duration(aca.att, next_aca.att)
+        man_start = DateTime(next_aca.date).secs - man_dur
+        obs_dur = man_start - DateTime(aca.date).secs
         if (obsid > 40000) and (obsid < 59000) and (obs_dur >= MIN_DWELL):
-            print(f"Found candidate {obsid} of dur {obs_dur} at {aca.meta['date']}")
+            print(f"Found candidate {obsid} of dur {obs_dur} at {aca.date}")
             candidates.append(
                 {'obsid': obsid,
                  'dwell_end': man_start})
