@@ -188,8 +188,7 @@ def sub_in_stars(aca):
 
 def do(load_name):
     acas = pickle.load(gzip.open(load_name))
-    aca_arr = [acas[cat] for cat in acas]
-    aca_arr = sorted(aca_arr, key=lambda k: k.date)
+    aca_arr = sorted(acas.values(), key=lambda aca: aca.date)
 
     # Do we want to parse the ms to check the last one?  Otherwise no duration.
     candidates = []
