@@ -176,6 +176,16 @@ def _run_aca_review(load_name=None, *, acars=None, make_html=True, report_dir=No
 
 
 def sub_in_stars(aca):
+    """
+    Given an ACACatalogTable from proseco, try to get a "passing" catalog
+    while subbing in 2 of the faint(est) stars in the field.  The intent
+    is to make the ER catalog worse for this image_data_sar application,
+    by getting more data on the faintest acceptable stars for the candidate
+    attitudes.
+
+    :param aca: ACACatalogTable
+    :returns: new/acceptable catalog, id of faint star1, id of faint star 2
+    """
 
     # Get the stars fainter than the faintest one in the original catalog .
     ok = aca.guides.cand_guides['mag'] > np.max(aca['mag'])
