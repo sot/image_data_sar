@@ -4,6 +4,7 @@ import gzip
 from jinja2 import Template
 from pathlib import Path
 import traceback
+import numpy as np
 
 import sparkles
 import chandra_aca
@@ -169,14 +170,15 @@ def _run_aca_review(load_name=None, *, acars=None, make_html=True, report_dir=No
 
 def sub_in_stars(aca):
 
-    # Sort the candidates by mag
-    aca.guides.cand_guides.sort('mag')
+    # Get the stars fainter than the faintest one in the original catalog .
+    ok = aca.guides.cand_guides['mag'] > np.max(aca['mag'])
+    cand_guides = aca.guides.cand_guides[ok]
+    cand_guides.sort('mag', reverse=True)
+
     args = aca.call_args.copy()
 
-    # Sub in the faintest and stop if it still has no criticals
-    for i, n in enumerate(range(len(aca.guides.cand_guides) - 1, len(aca.guides) - 1, -1)):
-        star1 = aca.guides.cand_guides['id'][n]
-        star2 = aca.guides.cand_guides['id'][n - 1]
+    # Sub in the faintest 2 and stop if it still has no criticals
+    for star1, star2 in zip(cand_guides['id'][:-1], cand_guides['id'][1:]):
         print(f"trying candidates {star1} {star2}")
         args['include_ids_guide'] = [star1, star2]
         naca = proseco.get_aca_catalog(**args)
