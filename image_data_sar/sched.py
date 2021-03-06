@@ -189,7 +189,10 @@ def sub_in_stars(aca):
     return naca, star1, star2
 
 
-def do(load_name):
+def main():
+    opt = get_options()
+    load_name = opt.load_name
+
     acas = pickle.load(gzip.open(load_name))
     aca_arr = sorted(acas.values(), key=lambda aca: aca.date)
 
@@ -257,9 +260,6 @@ def do(load_name):
         print("No opportunities found")
 
 
-def main():
-    opt = get_options()
-    do(opt.load_name)
 
 
 if __name__ == '__main__':
