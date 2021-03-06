@@ -30,6 +30,11 @@ def get_options():
     return args
 
 
+# _run_aca_review routine borrowed from sparkles.
+# This version has been edited to comment out the line that clears the messages.
+# This allows custom messages to be added to the 'acar' objects before being passed
+# to this reporting routine.  There's also an edit to set the sparkles version for
+# the data structure using the absolute import (relative in the original).
 def _run_aca_review(load_name=None, *, acars=None, make_html=True, report_dir=None,
                     report_level='none', roll_level='none', roll_args=None,
                     loud=False, obsids=None, open_html=False, context=None):
@@ -66,7 +71,7 @@ def _run_aca_review(load_name=None, *, acars=None, make_html=True, report_dir=No
         if loud:
             print(f'Processing obsid {aca.obsid}')
 
-        # Don't clear messages
+        # Don't clear messages - the change for the image_draft_sar application
         # aca.messages.clear()
         aca.context.clear()
 
@@ -140,6 +145,8 @@ def _run_aca_review(load_name=None, *, acars=None, make_html=True, report_dir=No
 
         context['load_name'] = load_name.upper()
         context['proseco_version'] = proseco.__version__
+
+        # In the sparkles version this is assigned with a relative import.
         context['sparkles_version'] = sparkles.__version__
         context['chandra_aca_version'] = chandra_aca.__version__
         context['acas'] = acars
