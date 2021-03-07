@@ -214,21 +214,27 @@ def main():
     aca_arr = sorted(acas.values(), key=lambda aca: aca.date)
 
     candidates = []
+    max_er = {'obsid': None, 'duration': 0 * u.s}
     for aca, next_aca in zip(aca_arr[:-1], aca_arr[1:]):
         obsid = aca.obsid
         man_dur = duration(aca.att, next_aca.att)
         man_start = CxoTime(next_aca.date) - man_dur * u.s
         obs_dur = man_start - CxoTime(aca.date)
-        if (obsid > 39000) and (obsid < 59000) and (obs_dur >= MIN_DWELL):
-            print(f"Found candidate {obsid} of dur {obs_dur.to(u.ks):.1f} at {aca.date}")
-            candidates.append(
-                {'obsid': obsid,
-                 'dwell_end': man_start})
+        if obsid > 39000 and obsid < 59000:
+            if obs_dur > max_er['duration']:
+                max_er['obsid'] = obsid
+                max_er['duration'] = obs_dur
+            if obs_dur >= MIN_DWELL:
+                print(f"Found candidate {obsid} of dur {obs_dur.to(u.ks):.1f} at {aca.date}")
+                candidates.append(
+                    {'obsid': obsid,
+                     'dwell_end': man_start})
 
     if len(candidates) == 0:
         print("No opportunities found.")
-        if aca_arr[-1].obsid  > 39000 and aca_arr[-1].obsid < 59000:
-            print("Schedule ends with ER.  Check summary for duration")
+        print(f"Longest ER {max_er['obsid']} {max_er['duration'].to(u.ks):.1f}")
+        if aca_arr[-1].obsid > 39000 and aca_arr[-1].obsid < 59000:
+            print(f"Schedule ends with ER {aca_arr[-1].obsid}.  Check summary for duration.")
         return
 
     acars = []
