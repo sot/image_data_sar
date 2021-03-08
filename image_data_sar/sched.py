@@ -26,6 +26,9 @@ def get_options():
     parser.add_argument('load_name',
                         type=str,
                         help="Pickle")
+    parser.add_argument("--sched-stop",
+                        type=str,
+                        help="Schedule stop time")
     args = parser.parse_args()
     return args
 
@@ -215,11 +218,31 @@ def main():
 
     candidates = []
     max_er = {'obsid': None, 'duration': 0 * u.s}
+
+    # If the schedule ends with an ER, check its duration too or print something useful.
+    if aca_arr[-1].obsid > 39000 and aca_arr[-1].obsid < 59000:
+        if opt.sched_stop is None:
+            print("Schedule ends with ER and no stop time supplied.")
+            print("Supply --sched-stop to check that obsid")
+        else:
+
+            # It is a little awkward to just paste in a dummy *thing* at the end,
+            # but all we really need is some kind of object with the end time.  This
+            # hack lets us use the aca/next_aca logic in the next block with a small
+            # modification to handle a special-case dict.
+            aca_arr.append({'sched_stop': CxoTime(opt.sched_stop)})
+
     for aca, next_aca in zip(aca_arr[:-1], aca_arr[1:]):
         obsid = aca.obsid
-        man_dur = duration(aca.att, next_aca.att)
-        man_start = CxoTime(next_aca.date) - man_dur * u.s
-        obs_dur = man_start - CxoTime(aca.date)
+
+        # For the special case of a dictionary with the stop time, use it to determine
+        # the end of the dwell.  Otherwise use the next maneuver.
+        if isinstance(next_aca, dict):
+            dwell_end = next_aca['sched_stop']
+        else:
+            man_dur = duration(aca.att, next_aca.att)
+            dwell_end = CxoTime(next_aca.date) - man_dur * u.s
+        obs_dur = dwell_end - CxoTime(aca.date)
         if obsid > 39000 and obsid < 59000:
             if obs_dur > max_er['duration']:
                 max_er['obsid'] = obsid
@@ -228,13 +251,11 @@ def main():
                 print(f"Found candidate {obsid} of dur {obs_dur.to(u.ks):.1f} at {aca.date}")
                 candidates.append(
                     {'obsid': obsid,
-                     'dwell_end': man_start})
+                     'dwell_end': dwell_end})
 
     if len(candidates) == 0:
         print("No opportunities found.")
         print(f"Longest ER {max_er['obsid']} {max_er['duration'].to(u.ks):.1f}")
-        if aca_arr[-1].obsid > 39000 and aca_arr[-1].obsid < 59000:
-            print(f"Schedule ends with ER {aca_arr[-1].obsid}.  Check summary for duration.")
         return
 
     acars = []
