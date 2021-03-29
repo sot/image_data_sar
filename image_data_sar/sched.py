@@ -197,16 +197,38 @@ def sub_in_stars(aca):
 
     args = aca.call_args.copy()
 
-    # Sub in the faintest 2 and stop if it still has no criticals
-    for star1, star2 in zip(cand_guides['id'][:-1], cand_guides['id'][1:]):
-        print(f"trying candidates {star1} {star2}")
-        args['include_ids_guide'] = [star1, star2]
+    if len(cand_guides) == 0:
+        print("No faint(er) star candidates found")
+        # This assumes original catalog was acceptable
+        return aca, None, None
+
+    if len(cand_guides) == 1:
+        star1 = cand_guides['id'][0]
+        star2 = None
+        print(f"trying candidates {star1}")
+        args['include_ids_guide'] = [star1]
         naca = proseco.get_aca_catalog(**args)
         nacar = naca.get_review_table()
         nacar.run_aca_review()
         if len(nacar.messages == 'critical') == 0:
-            break
-    return naca, star1, star2
+            print("Only one fainter candidate found; worked")
+            return naca, star1, star2
+        else:
+            print("No acceptable catalog found with faint star")
+            return aca, None, None
+    else:
+        # Sub in the faintest 2 and stop if it still has no criticals
+        for star1, star2 in zip(cand_guides['id'][:-1], cand_guides['id'][1:]):
+            args['include_ids_guide'] = [star1, star2]
+            print(f"trying candidates {star1} {star2}")
+            naca = proseco.get_aca_catalog(**args)
+            nacar = naca.get_review_table()
+            nacar.run_aca_review()
+            if len(nacar.messages == 'critical') == 0:
+                print("Candidates worked")
+                return naca, star1, star2
+        print("No acceptable catalog found with faint star combinations")
+        return aca, None, None
 
 
 def main():
@@ -269,6 +291,7 @@ def main():
         cargs['dither_guide'] = (16, 16)
         cat = proseco.get_aca_catalog(**cargs)
 
+        print(f"Running process on {obsid}")
         ncat, star1, star2 = sub_in_stars(cat)
 
         # Use those stars in the three observations in the splits
