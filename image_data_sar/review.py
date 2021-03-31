@@ -47,29 +47,29 @@ def starcheck_for_obsid(obsid, sc):
 
 def obs1_setup_ok(sc_cat):
     imgsz = np.array([row['sz'] for row in sc_cat['catalog']])
-    return ((sc_cat['obs']['dither_y_amp'] == 16.0) &
-            (sc_cat['obs']['dither_z_amp'] == 16.0) &
-            (sc_cat['obs']['dither_y_period'] == 2000.0) &
-            (sc_cat['obs']['dither_z_period'] == 1414.8) &
-            (np.all(imgsz == '8x8')))
+    return ((sc_cat['obs']['dither_y_amp'] == 16.0)
+            & (sc_cat['obs']['dither_z_amp'] == 16.0)
+            & (sc_cat['obs']['dither_y_period'] == 2000.0)
+            & (sc_cat['obs']['dither_z_period'] == 1414.8)
+            & (np.all(imgsz == '8x8')))
 
 
 def obs2_setup_ok(sc_cat):
     imgsz = np.array([row['sz'] for row in sc_cat['catalog']])
-    return ((sc_cat['obs']['dither_y_amp'] == 8.0) &
-            (sc_cat['obs']['dither_z_amp'] == 8.0) &
-            (sc_cat['obs']['dither_y_period'] == 1000.0) &
-            (sc_cat['obs']['dither_z_period'] == 707.1) &
-            (np.all(imgsz == '6x6')))
+    return ((sc_cat['obs']['dither_y_amp'] == 8.0)
+            & (sc_cat['obs']['dither_z_amp'] == 8.0)
+            & (sc_cat['obs']['dither_y_period'] == 1000.0)
+            & (sc_cat['obs']['dither_z_period'] == 707.1)
+            & (np.all(imgsz == '6x6')))
 
 
 def obs3_setup_ok(sc_cat):
     imgsz = np.array([row['sz'] for row in sc_cat['catalog']])
-    return ((sc_cat['obs']['dither_y_amp'] == 8.0) &
-            (sc_cat['obs']['dither_z_amp'] == 8.0) &
-            (sc_cat['obs']['dither_y_period'] == 1000.0) &
-            (sc_cat['obs']['dither_z_period'] == 707.1) &
-            (np.all(imgsz == '8x8')))
+    return ((sc_cat['obs']['dither_y_amp'] == 8.0)
+            & (sc_cat['obs']['dither_z_amp'] == 8.0)
+            & (sc_cat['obs']['dither_y_period'] == 1000.0)
+            & (sc_cat['obs']['dither_z_period'] == 707.1)
+            & (np.all(imgsz == '8x8')))
 
 
 def has_sc_critical(obs_text, ok6x6=False):
@@ -116,11 +116,11 @@ def same_attitude(obs1, obs2, obs3, acas):
     att3 = acas[obs3].call_args['att']
     dq2 = att1.dq(att2)
     dq3 = att1.dq(att3)
-    return ((np.abs(dq2.pitch * 3600) < 1) and
-            (np.abs(dq2.yaw * 3600) < 1) and
-            (np.abs(dq3.pitch * 3600) < 1) and
-            (np.abs(dq3.yaw * 3600) < 1) and
-            np.allclose([att2.roll, att3.roll], att1.roll, atol=0.05, rtol=0))
+    return ((np.abs(dq2.pitch * 3600) < 1)
+            and (np.abs(dq2.yaw * 3600) < 1)
+            and (np.abs(dq3.pitch * 3600) < 1)
+            and (np.abs(dq3.yaw * 3600) < 1)
+            and np.allclose([att2.roll, att3.roll], att1.roll, atol=0.05, rtol=0))
 
 
 def pok(ok):
@@ -154,12 +154,12 @@ def main():
         cat2 = starcheck_for_obsid(obs2, sc)
         cat3 = starcheck_for_obsid(obs3, sc)
 
-        check1 = ((not has_sc_critical(cat1['orig_text'])) and
-                  (not has_sc_critical(cat2['orig_text'], ok6x6=True)) and
-                  (not has_sc_critical(cat3['orig_text'])) and
-                  (not has_proseco_critical(acas[obs1])) and
-                  (not has_proseco_critical(acas[obs2])) and
-                  (not has_proseco_critical(acas[obs3])))
+        check1 = ((not has_sc_critical(cat1['orig_text']))
+                  and (not has_sc_critical(cat2['orig_text'], ok6x6=True))
+                  and (not has_sc_critical(cat3['orig_text']))
+                  and (not has_proseco_critical(acas[obs1]))
+                  and (not has_proseco_critical(acas[obs2]))
+                  and (not has_proseco_critical(acas[obs3])))
 
         print(f"For SAR activity during obsids {obs1, obs2, obs3}")
         print(f"[{pok(check1)}] - Each obs meets normal ACA review requirements (except 6x6 in ER)")
@@ -180,9 +180,9 @@ def main():
               "and image size=8x8 pixels")
 
         durations = get_durations(aca_arr)
-        check5 = (check_duration(obs1, obsids, durations) and
-                  check_duration(obs2, obsids, durations) and
-                  check_duration(obs3, obsids, durations))
+        check5 = (check_duration(obs1, obsids, durations)
+                  and check_duration(obs2, obsids, durations)
+                  and check_duration(obs3, obsids, durations))
 
         print(f"[{pok(check5)}] - Each obs at least 4 ks")
 
