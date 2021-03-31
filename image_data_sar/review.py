@@ -194,7 +194,7 @@ def main():
 
         print("")
         print("Compare included stars to previously provided list by hand:")
-        print(f"Included stars are {sorted(acas[obs1].guides['id'])}")
+        print(f"include_ids_guide stars are {acas[obs1].call_args.get('include_ids_guide')}")
 
 
 if __name__ == '__main__':
