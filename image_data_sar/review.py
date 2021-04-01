@@ -194,7 +194,10 @@ def main():
 
         print("")
         print("Compare included stars to previously provided list by hand:")
-        print(f"include_ids_guide stars are {acas[obs1].call_args.get('include_ids_guide')}")
+        ids = acas[obs1].call_args.get('include_ids_guide')
+        if len(ids) > 0:
+            ids = list(np.array(ids).astype(int))
+        print(f"include_ids_guide stars are {ids}")
 
 
 if __name__ == '__main__':
