@@ -55,7 +55,7 @@ def obs1_setup_ok(sc_cat):
 
 
 def obs2_setup_ok(sc_cat):
-    imgsz = np.array([row['sz'] for row in sc_cat['catalog']])
+    imgsz = np.array([row['sz'] for row in sc_cat['catalog'] if row['type'] in ['GUI', 'BOT']])
     return ((sc_cat['obs']['dither_y_amp'] == 8.0)
             & (sc_cat['obs']['dither_z_amp'] == 8.0)
             & (sc_cat['obs']['dither_y_period'] == 1000.0)
