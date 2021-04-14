@@ -172,7 +172,7 @@ def main():
         check3 = obs2_setup_ok(cat2)
 
         print(f"[{pok(check3)}] - Second obs has 8x8 dither with period=1000.0, 707.1, ",
-              "and image size=6x6 pixels")
+              "and image size=6x6 pixels on guide stars")
 
         check4 = obs3_setup_ok(cat3)
 
